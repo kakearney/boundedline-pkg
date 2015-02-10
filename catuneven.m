@@ -22,6 +22,7 @@ function b = catuneven(dim, padval, varargin);
 % Copyright 2013 Kelly Kearney
 
 ndim = max(cellfun(@ndims, varargin));
+ndim = max(ndim, dim);
 
 for ii = 1:ndim
     sz(:,ii) = cellfun(@(x) size(x, ii), varargin);
