@@ -374,13 +374,24 @@ end
 function [xp, yp] = calcpatch(xl, yl, isvert, lo, hi)
 
 ismissing = any(isnan([xl;yl;lo;hi]),2);
+iseq = ~verLessThan('matlab', '8.4.0') && isequal(lo, hi); % deal with zero-width bug in R2014b/R2015a
 
 if isvert
-    xp = [xl fliplr(xl)];
-    yp = [lo fliplr(hi)];
+    if iseq
+        xp = [xl nan(size(xl))];
+        yp = [lo fliplr(hi)];
+    else
+        xp = [xl fliplr(xl)];
+        yp = [lo fliplr(hi)];
+    end
 else
-    xp = [lo fliplr(hi)];
-    yp = [yl fliplr(yl)];
+    if iseq
+        xp = [lo fliplr(hi)];
+        yp = [yl nan(size(yl))];
+    else
+        xp = [lo fliplr(hi)];
+        yp = [yl fliplr(yl)];
+    end
 end
 
 if any(ismissing)
