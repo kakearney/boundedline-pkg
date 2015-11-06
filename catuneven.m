@@ -1,4 +1,4 @@
-function b = catuneven(dim, padval, varargin);
+function b = catuneven(dim, padval, varargin)
 %CATUNEVEN Concatenate unequally-sized arrays, padding with a value
 %
 % This function is similar to cat, except it does not require the arrays to
