@@ -8,6 +8,7 @@ function varargout = boundedline(varargin)
 % [hl, hp] = boundedline(..., ax)
 % [hl, hp] = boundedline(..., 'transparency', trans)
 % [hl, hp] = boundedline(..., 'orientation', orient)
+% [hl, hp] = boundedline(..., 'nan', nanflag)
 % [hl, hp] = boundedline(..., 'cmap', cmap)
 %
 % Input variables:
@@ -46,8 +47,14 @@ function varargout = boundedline(varargin)
 %               intensity of color of the bounded area patch. Default is
 %               0.2.
 %
-%   orient:     'vert': add bounds in vertical (y) direction (default)
+%   orient:     direction to add bounds
+%               'vert':  add bounds in vertical (y) direction (default)
 %               'horiz': add bounds in horizontal (x) direction 
+%
+%   nanflag:    Sets how NaNs in the boundedline patch should be handled
+%               'fill':  fill the value based on neighboring values,
+%                        smoothing over the gap
+%               'gap':   leave a blank space over/below the line
 %
 %   cmap:       n x 3 colormap array.  If included, lines will be colored
 %               (in order of plotting) according to this colormap,
@@ -145,6 +152,13 @@ end
 
 [hascmap, cmap, varargin] = parseparam(varargin, 'cmap');
 
+
+% NaN flag
+
+[found, nanflag, varargin] = parseparam(varargin, 'nan');
+if ~found
+    nanflag = 'fill';
+end
 
 % X, Y, E triplets, and linespec
 
@@ -295,7 +309,7 @@ for iln = 1:nline
 %         yp{iln} = [plotdata{iln,2} fliplr(plotdata{iln,2})];
 %     end
     
-    [xp{iln}, yp{iln}] = calcpatch(plotdata{iln,1}, plotdata{iln,2}, isvert, plotdata{iln,6}, plotdata{iln,7});
+    [xp{iln}, yp{iln}] = calcpatch(plotdata{iln,1}, plotdata{iln,2}, isvert, plotdata{iln,6}, plotdata{iln,7}, nanflag);
     
     marker{iln} = plotdata{iln,3};
     lnsty{iln} = plotdata{iln,4};
@@ -371,33 +385,73 @@ end
 % Calculate patch coordinates
 %----------------------------
 
-function [xp, yp] = calcpatch(xl, yl, isvert, lo, hi)
+function [xp, yp] = calcpatch(xl, yl, isvert, lo, hi, nanflag)
 
-ismissing = any(isnan([xl;yl;lo;hi]),2);
-iseq = ~verLessThan('matlab', '8.4.0') && isequal(lo, hi); % deal with zero-width bug in R2014b/R2015a
+ismissing = isnan([xl;yl;lo;hi]);
 
-if isvert
-    if iseq
-        xp = [xl nan(size(xl))];
-        yp = [lo fliplr(hi)];
-    else
-        xp = [xl fliplr(xl)];
-        yp = [lo fliplr(hi)];
-    end
+% If gap method, split
+
+if any(ismissing(:)) && strcmp(nanflag, 'gap')
+    
+    tmp = [xl;yl;lo;hi];
+   
+    idx = find(any(ismissing,1));
+    n = diff([0 idx length(xl)]);
+    
+    tmp = mat2cell(tmp, 4, n);
+    isemp = cellfun('isempty', tmp);
+    tmp = tmp(~isemp);
+    
+    tmp = cellfun(@(a) a(:,~any(isnan(a),1)), tmp, 'uni', 0);
+    isemp = cellfun('isempty', tmp);
+    tmp = tmp(~isemp);
+    
+    xl = cellfun(@(a) a(1,:), tmp, 'uni', 0);
+    yl = cellfun(@(a) a(2,:), tmp, 'uni', 0);
+    lo = cellfun(@(a) a(3,:), tmp, 'uni', 0);
+    hi = cellfun(@(a) a(4,:), tmp, 'uni', 0);
 else
-    if iseq
-        xp = [lo fliplr(hi)];
-        yp = [yl nan(size(yl))];
+    xl = {xl};
+    yl = {yl};
+    lo = {lo};
+    hi = {hi};
+end
+
+[xp, yp] = deal(cell(size(xl)));
+
+for ii = 1:length(xl)
+
+    iseq = ~verLessThan('matlab', '8.4.0') && isequal(lo{ii}, hi{ii}); % deal with zero-width bug in R2014b/R2015a
+
+    if isvert
+        if iseq
+            xp{ii} = [xl{ii} nan(size(xl{ii}))];
+            yp{ii} = [lo{ii} fliplr(hi{ii})];
+        else
+            xp{ii} = [xl{ii} fliplr(xl{ii})];
+            yp{ii} = [lo{ii} fliplr(hi{ii})];
+        end
     else
-        xp = [lo fliplr(hi)];
-        yp = [yl fliplr(yl)];
+        if iseq
+            xp{ii} = [lo{ii} fliplr(hi{ii})];
+            yp{ii} = [yl{ii} nan(size(yl{ii}))];
+        else
+            xp{ii} = [lo{ii} fliplr(hi{ii})];
+            yp{ii} = [yl{ii} fliplr(yl{ii})];
+        end
     end
+    
+    if strcmp(nanflag, 'fill')
+        xp{ii} = inpaint_nans(xp{ii}');
+        yp{ii} = inpaint_nans(yp{ii}');
+    end
+    
 end
 
-if any(ismissing)
-    warning('boundedline:NaN', 'NaNs in bounds; inpainting');
-    xp = inpaint_nans(xp');
-    yp = inpaint_nans(yp');
+if strcmp(nanflag, 'gap')
+    [xp, yp] = singlepatch(xp, yp);
+else
+    xp = xp{1};
+    yp = yp{1};
 end
-
 
