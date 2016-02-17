@@ -26,6 +26,12 @@ for il = 1:numel(hp)
     xy = get(hp(il), {'xdata','ydata'});
     ax = ancestor(hl(il), 'axes');
     
+    nline = size(xy{1},2);
+    if nline > 1
+        xy{1} = reshape([xy{1}; nan(1,nline)], [], 1);
+        xy{2} = reshape([xy{2}; nan(1,nline)], [], 1);
+    end
     hnew(il) = line(xy{1}, xy{2}, 'parent', ax, 'linestyle', '-', 'color', col);
+    
 end
     
