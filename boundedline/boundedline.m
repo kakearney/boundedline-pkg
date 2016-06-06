@@ -48,13 +48,17 @@ function varargout = boundedline(varargin)
 %               0.2.
 %
 %   orient:     direction to add bounds
-%               'vert':  add bounds in vertical (y) direction (default)
-%               'horiz': add bounds in horizontal (x) direction 
+%               'vert':   add bounds in vertical (y) direction (default)
+%               'horiz':  add bounds in horizontal (x) direction 
 %
 %   nanflag:    Sets how NaNs in the boundedline patch should be handled
-%               'fill':  fill the value based on neighboring values,
-%                        smoothing over the gap
-%               'gap':   leave a blank space over/below the line
+%               'fill':   fill the value based on neighboring values,
+%                         smoothing over the gap
+%               'gap':    leave a blank space over/below the line
+%               'remove': drop NaNs from patches, creating a linear
+%                         interpolation over the gap.  Note that this
+%                         applies only to the bounds; NaNs in the line will
+%                         remain.
 %
 %   cmap:       n x 3 colormap array.  If included, lines will be colored
 %               (in order of plotting) according to this colormap,
@@ -158,6 +162,9 @@ end
 [found, nanflag, varargin] = parseparam(varargin, 'nan');
 if ~found
     nanflag = 'fill';
+end
+if ~ismember(nanflag, {'fill', 'gap', 'remove'})
+    error('Nan flag must be ''fill'', ''gap'', or ''remove''');
 end
 
 % X, Y, E triplets, and linespec
@@ -333,15 +340,13 @@ else
     [hp,hl] = deal(gobjects(nline,1));
 end
 
-axes(hax);
-hold all;
 
 for iln = 1:nline
-    hp(iln) = patch(xp{iln}, yp{iln}, ptchcol{iln}, 'facealpha', alpha{iln}, 'edgecolor', 'none');
+    hp(iln) = patch(xp{iln}, yp{iln}, ptchcol{iln}, 'facealpha', alpha{iln}, 'edgecolor', 'none', 'parent', hax);
 end
 
 for iln = 1:nline
-    hl(iln) = line(xl{iln}, yl{iln}, 'marker', marker{iln}, 'linestyle', lnsty{iln}, 'color', lncol{iln});
+    hl(iln) = line(xl{iln}, yl{iln}, 'marker', marker{iln}, 'linestyle', lnsty{iln}, 'color', lncol{iln}, 'parent', hax);
 end
 
 %--------------------
@@ -442,8 +447,12 @@ for ii = 1:length(xl)
     end
     
     if strcmp(nanflag, 'fill')
-        xp{ii} = inpaint_nans(xp{ii}');
-        yp{ii} = inpaint_nans(yp{ii}');
+        xp{ii} = inpaint_nans(xp{ii}', 4);
+        yp{ii} = inpaint_nans(yp{ii}', 4);
+    elseif strcmp(nanflag, 'remove')
+        isn = isnan(xp{ii}) | isnan(yp{ii});
+        xp{ii} = xp{ii}(~isn);
+        yp{ii} = yp{ii}(~isn);
     end
     
 end
