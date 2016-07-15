@@ -27,6 +27,12 @@ for il = 1:numel(hp)
     ax = ancestor(hl(il), 'axes');
     
     nline = size(xy{1},2);
+    if mod(size(xy{1}, 1), 2) == 0
+        % Insert a NaN between upper and lower lines, so they're disconnected
+        L = size(xy{1}, 1) / 2;
+        xy{1} = [xy{1}(1:L, :); nan(1, nline); xy{1}(L+1:end, :)];
+        xy{2} = [xy{2}(1:L, :); nan(1, nline); xy{2}(L+1:end, :)];
+    end
     if nline > 1
         xy{1} = reshape([xy{1}; nan(1,nline)], [], 1);
         xy{2} = reshape([xy{2}; nan(1,nline)], [], 1);
