@@ -40,7 +40,11 @@ for ii = 1:nv
     
     idxnew = sub2ind(sztmp, idx{:});
     
-    val{ii} = ones(sztmp) * padval;
+    try
+        val{ii} = ones(sztmp) * padval;
+    catch
+        val{ii} = repmat(padval, sztmp);
+    end
     val{ii}(idxnew) = varargin{ii};
      
 end
