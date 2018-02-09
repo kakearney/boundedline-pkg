@@ -454,7 +454,14 @@ for ii = 1:length(xl)
             xp{ii}((nx/2)+1:end) = NaN;
         end
     elseif strcmp(nanflag, 'remove')
-        isn = isnan(xp{ii}) | isnan(yp{ii});
+        if iseq
+            nx = length(xp{ii});
+            keepnan = false(size(xp));
+            keepnan((nx/2)+1:end) = true;
+            isn = (isnan(xp{ii}) | isnan(yp{ii})) & ~keepnan;
+        else
+            isn = isnan(xp{ii}) | isnan(yp{ii});
+        end
         xp{ii} = xp{ii}(~isn);
         yp{ii} = yp{ii}(~isn);
     end
