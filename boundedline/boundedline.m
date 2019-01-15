@@ -180,7 +180,13 @@ while ~isempty(varargin)
         err = [err varargin(3)];
         varargin(1:3) = [];
     else
-        error('Unexpected input: should be x, y, bounds triplets');
+        if any(cellfun(@(x) isa(x, 'datetime'), varargin(1:3)))
+            % Special error message for most likely culprit: datetimes
+            error('boundedline cannot support datetime input due to incompatibility between patches and datetime axes; please convert to datenumbers instead');
+        else
+            % Otherwise
+            error('Unexpected input: should be numeric x, y, bounds triplets');
+        end
     end
     if ~isempty(varargin) && ischar(varargin{1})
         linespec = [linespec varargin(1)];
