@@ -92,7 +92,7 @@ Full details of all input and output variables for both functions can be accesse
 This example builds the 4-panel example image used on the MatlabCentral File Exchange, which shows several different methods for supplying line coordinates, bounds coordinates, and shading options.
 
 
-The first axis plots two lines using the LineSpec option for input, which allows yoy to set line color, line color, and marker type for each line. The bounds on the first line vary over x, while the bounds on the second line are constant for all x. An outline is added to the bounds so the overlapping region can be seen more clearly.
+The first axis plots two lines using the LineSpec option for input, which allows you to set line color, line color, and marker type for each line. The bounds on the first line vary over x, while the bounds on the second line are constant for all x. An outline is added to the bounds so the overlapping region can be seen more clearly.
 
 
 
@@ -113,7 +113,7 @@ axis tight;
 
 ![](./readmeExtras/README_01.png)
 
-For our second axis, we use the same 2 lines, and this time assign x-varying bounds to both lines.  Rather than using the LineSpec syntax, this  example uses the default color order to assign the colors of the lines and patches.  I also turn on the `'alpha'` option, which renders the patch wit partial transparency.
+For our second axis, we use the same 2 lines, and this time assign x-varying bounds to both lines.  Rather than using the LineSpec syntax, this  example uses the default color order to assign the colors of the lines and patches.  I also turn on the `'alpha'` option, which renders the patch with partial transparency.
 
 
 
