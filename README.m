@@ -109,7 +109,7 @@ axis tight;
 % x-varying bounds to both lines.  Rather than using the LineSpec syntax,
 % this  example uses the default color order to assign the colors of the
 % lines and patches.  I also turn on the |'alpha'| option, which renders
-% the patch wit partial transparency.
+% the patch with partial transparency.
 
 ax(2) = subplot(2,2,2);
 boundedline(x, [y1;y2], rand(length(y1),2,2)*.5+.5, 'alpha');
