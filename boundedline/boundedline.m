@@ -103,6 +103,13 @@ function varargout = boundedline(varargin)
 % Parse input
 %--------------------
 
+% Color and cmap are mechanically the same: 
+
+tmp = strncmpi(varargin,'color',3); 
+if any(tmp)
+   varargin{tmp} = 'cmap'; 
+end
+
 % Alpha flag
 
 isalpha = cellfun(@(x) ischar(x) && strcmp(x, 'alpha'), varargin);
@@ -151,11 +158,9 @@ else
     error('Orientation must be ''vert'' or ''horiz''');
 end
 
-
 % Colormap
 
 [hascmap, cmap, varargin] = parseparam(varargin, 'cmap');
-
 
 % NaN flag
 
@@ -165,6 +170,11 @@ if ~found
 end
 if ~ismember(nanflag, {'fill', 'gap', 'remove'})
     error('Nan flag must be ''fill'', ''gap'', or ''remove''');
+end
+
+[haslw, lwidth, varargin] = parseparam(varargin, 'linewidth');
+if ~haslw
+    lwidth = get(0, 'DefaultLineLineWidth');
 end
 
 % X, Y, E triplets, and linespec
@@ -348,11 +358,19 @@ end
 
 
 for iln = 1:nline
-    hp(iln) = patch(xp{iln}, yp{iln}, ptchcol{iln}, 'facealpha', alpha{iln}, 'edgecolor', 'none', 'parent', hax);
+    hp(iln) = patch(xp{iln}, yp{iln}, ptchcol{iln}, ...
+        'facealpha', alpha{iln}, ...
+        'edgecolor', 'none', ...
+        'parent', hax);
 end
 
 for iln = 1:nline
-    hl(iln) = line(xl{iln}, yl{iln}, 'marker', marker{iln}, 'linestyle', lnsty{iln}, 'color', lncol{iln}, 'parent', hax);
+    hl(iln) = line(xl{iln}, yl{iln}, ...
+        'marker', marker{iln}, ...
+        'linestyle', lnsty{iln}, ...
+        'color', lncol{iln}, ...
+        'linewidth', lwidth, ...
+        'parent', hax);
 end
 
 %--------------------
