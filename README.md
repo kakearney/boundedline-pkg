@@ -3,6 +3,7 @@
 
 
 Author: Kelly Kearney
+[![View boundedline.m on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/27485-boundedline-m)
 
 
 This repository includes the code for the `boundedline.m` Matlab function and the accompanying `outlinebounds.m` function, along with all dependent functions required to run them.
