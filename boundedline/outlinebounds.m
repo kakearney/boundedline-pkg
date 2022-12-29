@@ -20,7 +20,7 @@ function hnew = outlinebounds(hl, hp)
 % Copyright 2012 Kelly Kearney
 
 
-hnew = zeros(size(hl));
+hnew = gobjects(size(hl));
 for il = 1:numel(hp)
     col = get(hl(il), 'color');
     xy = get(hp(il), {'xdata','ydata'});
