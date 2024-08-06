@@ -19,8 +19,12 @@ function hnew = outlinebounds(hl, hp)
 
 % Copyright 2012 Kelly Kearney
 
+if verLessThan('matlab', '8.4.0')
+    hnew = zeros(size(hl));
+else
+    hnew = gobjects(size(hl));
+end
 
-hnew = zeros(size(hl));
 for il = 1:numel(hp)
     col = get(hl(il), 'color');
     xy = get(hp(il), {'xdata','ydata'});
